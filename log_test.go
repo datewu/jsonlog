@@ -3,6 +3,7 @@ package jsonlog
 import (
 	"bytes"
 	"errors"
+	"io"
 	"strings"
 	"testing"
 )
@@ -21,4 +22,8 @@ func TestLevel(t *testing.T) {
 		t.Errorf("Expected error output, got %q", buf.String())
 		t.Failed()
 	}
+}
+
+func TestIOWriter(t *testing.T) {
+	var _ io.Writer = Default()
 }

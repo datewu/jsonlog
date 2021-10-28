@@ -86,7 +86,12 @@ func (l *Logger) print(level Level, msg string, props map[string]string) (int, e
 	return l.out.Write(append(line, '\n'))
 }
 
-// WriteRaw writes a raw log entry at LevelError to the output destination.
-func (l *Logger) WriteRaw(msg []byte) (int, error) {
+// Write satisfies the io.Writer interface by call writeRaw.
+func (l *Logger) Write(msg []byte) (int, error) {
+	return l.writeRaw(msg)
+}
+
+// writeRaw writes a raw log entry at LevelError to the output destination.
+func (l *Logger) writeRaw(msg []byte) (int, error) {
 	return l.print(LevelError, string(msg), nil)
 }
