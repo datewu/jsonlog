@@ -9,32 +9,9 @@ import (
 	"time"
 )
 
-type Level int8
-
-const (
-	LevelInfo Level = iota
-	LevelError
-	LevelFatal
-	LevelOff
-)
-
-// String ...
-func (l Level) String() string {
-	switch l {
-	case LevelInfo:
-		return "INFO"
-	case LevelError:
-		return "ERROR"
-	case LevelFatal:
-		return "FATAL"
-	default:
-		return ""
-	}
-}
-
 // Logger holds the output destination that the log entries
 // will be written to, the minimum severity level that log
-// entries will be written for, and a mutex for writes.
+// entries will be written for, and a mutex for concurrent writes.
 type Logger struct {
 	out      io.Writer
 	minLevel Level
@@ -49,15 +26,32 @@ func New(out io.Writer, minLevel Level) *Logger {
 	}
 }
 
-func (l *Logger) PrintInfo(msg string, props map[string]string) {
+// Default write to stdout with the minimum level set to LevelDebug.
+func Default() *Logger {
+	return &Logger{
+		out:      os.Stdout,
+		minLevel: LevelDebug,
+	}
+}
+
+// Debug writes a log entry at LevelDebug to the output destination.
+func (l *Logger) Debug(msg string, props map[string]string) {
 	l.print(LevelInfo, msg, props)
 }
 
-func (l *Logger) PrintErr(err error, props map[string]string) {
+// Info writes a log entry at LevelInfo to the output destination.
+func (l *Logger) Info(msg string, props map[string]string) {
+	l.print(LevelInfo, msg, props)
+}
+
+// Err writes a log entry at LevelError to the output destination.
+func (l *Logger) Err(err error, props map[string]string) {
 	l.print(LevelError, err.Error(), props)
 }
 
-func (l *Logger) PrintFatal(err error, props map[string]string) {
+// Fatal writes a log entry at LevelFatal to the output destination
+// and exit 1.
+func (l *Logger) Fatal(err error, props map[string]string) {
 	l.print(LevelFatal, err.Error(), props)
 	os.Exit(1)
 }
@@ -92,6 +86,7 @@ func (l *Logger) print(level Level, msg string, props map[string]string) (int, e
 	return l.out.Write(append(line, '\n'))
 }
 
-func (l *Logger) Write(msg []byte) (int, error) {
+// WriteRaw writes a raw log entry at LevelError to the output destination.
+func (l *Logger) WriteRaw(msg []byte) (int, error) {
 	return l.print(LevelError, string(msg), nil)
 }
