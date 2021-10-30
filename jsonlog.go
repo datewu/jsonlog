@@ -36,7 +36,7 @@ func Default() *Logger {
 
 // Debug writes a log entry at LevelDebug to the output destination.
 func (l *Logger) Debug(msg string, props map[string]string) {
-	l.print(LevelInfo, msg, props)
+	l.print(LevelDebug, msg, props)
 }
 
 // Info writes a log entry at LevelInfo to the output destination.
